@@ -7,7 +7,7 @@
       <transition name="fade">
         <p v-if="isEmptyTask">Нельзя добавлять пустую задачу</p>
       </transition>
-      
+
       <input type="text" @:input="inputTodo($event)" :value="todoInput" placeholder="Введите задачу">
     </div>
     <hr />
@@ -17,10 +17,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// vue
+import { defineComponent } from "vue";
+
+// components
 import TodoList from "./TodoList.vue";
 
-export default {
+// types
+import { Todo } from "../../types";
+
+export default defineComponent({
   data() {
     return {
       todoInput: "",
@@ -30,20 +37,20 @@ export default {
       isError: false,
       isChangeTodosList: false,
       isEmptyTask: false,
-    }
+    } as Todo
   },
   components: {
     TodoList
   },
   methods: {
-    inputTodo(e) {
-      const task = e.srcElement.value.trim();
+    inputTodo(e: Event) {
+      const task = (e.target as HTMLInputElement).value.trim();
 
       if (task.length !== 0) {
         this.todoInput = task;
       }
     },
-    createTodo(e) {
+    createTodo(e: KeyboardEvent) {
       if (e.code !== "Enter") return;
 
       if (this.todoInput === "") {
@@ -67,46 +74,49 @@ export default {
     cancelChangeMode() {
       const todos = document.querySelectorAll(".todo");
 
-      todos.forEach(el => {
-        el.childNodes[0].classList.remove("inputActive");
-        el.childNodes[0].setAttribute("readonly", "")
+      todos.forEach((el) => {
+        (el.childNodes[0] as HTMLInputElement).classList.remove("inputActive");
+        (el.childNodes[0] as HTMLInputElement).setAttribute("readonly", "");
       });
     },
-    updateTodoAccess(e) {
+    updateTodoAccess(e: Event) {
       this.cancelChangeMode();
 
+      const taskInput = e.target as HTMLInputElement;
+
       if (this.isReadonly) {
-        e.target.classList.add("inputActive");
-        e.target.removeAttribute("readonly");
+        taskInput.classList.add("inputActive");
+        taskInput.removeAttribute("readonly");
       } else {
-        e.target.classList.remove("inputActive");
-        e.target.setAttribute("readonly", "");
+        taskInput.classList.remove("inputActive");
+        taskInput.setAttribute("readonly", "");
       }
 
-      this.todoOldString = e.target.value;
+      this.todoOldString = taskInput.value;
       this.isReadonly = !this.isReadonly;
     },
-    updateTodo(e) {
+    updateTodo(e: KeyboardEvent) {
       if (e.code !== "Enter") return;
 
-      if (e.srcElement.value === "") {
+      if ((e.target as HTMLInputElement).value === "") {
         this.isEmptyTask = true;
         return;
       } else {
         this.isEmptyTask = false;
       }
 
-      this.todosList = this.todosList.map((el) => {
+      this.todosList = this.todosList.map((el: string) => {
         if (el === this.todoOldString) {
-          el = e.srcElement.value;
+          el = (e.target as HTMLInputElement).value;
         }
         return el;
       });
 
       this.updateTodoAccess(e);
     },
-    deleteTodo(e) {
-      const deleteInputValue = e.target.parentNode.children[0].value;
+    deleteTodo(e: MouseEvent) {
+      const parentNodeTask = (e.target as HTMLDivElement).parentNode as HTMLDivElement;
+      const deleteInputValue = (parentNodeTask.children[0] as HTMLInputElement).value;
 
       this.todosList = this.todosList.filter(el => el !== deleteInputValue);
     },
@@ -125,11 +135,12 @@ export default {
   },
   mounted() {
     this.$nextTick(function () {
-      const savedTodo = JSON.parse(localStorage.getItem("todosList"));
-      this.todosList = [...savedTodo];
-    })
+      const savedTodo = localStorage.getItem("todosList");
+      const todosListLS = savedTodo && JSON.parse(savedTodo);
+      this.todosList = [...todosListLS];
+    });
   }
-}
+});
 </script>
 
 <style>

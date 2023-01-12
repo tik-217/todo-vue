@@ -8,7 +8,7 @@
   </div>
 </template>
 
-<script>
+<script >
 export default {
   props: {
     todosList: {
@@ -23,7 +23,7 @@ export default {
     updateTodoAccess: {
       type: Function
     }
-  },
+  }
 }
 </script>
 

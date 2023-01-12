@@ -1,17 +1,18 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
+  <img alt="Vue logo" src="../assets/logo.png">
   <Todo />
 </template>
 
 <script lang="ts">
-import Todo from './components/Todo.vue';
+import { defineComponent } from 'vue';
+import Todo from './Todo.vue';
 
-export default {
+export default defineComponent({
   name: 'App',
   components: {
     Todo
   }
-};
+});
 </script>
 
 <style>
